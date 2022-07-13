@@ -5,7 +5,10 @@ import re
 
 # Wraps the input string within quotes & escapes the string
 def _escape(in_str):
-    raw_map = {8:r'\\b', 7:r'\\a', 12:r'\\f', 10:r'\\n', 13:r'\\r', 9:r'\\t', 11:r'\\v', 34:r'\"', 92:r'\\'}
+    # On Windows: Powershell apparently escaped (")  via (`) and not backslash. Cmd on the other hand escapes it as usual (/).
+    uses_powershell = 'COMSPEC' in os.environ and os.environ['COMSPEC'].endsWith("powershell.exe")
+
+    raw_map = {8:r'\\b', 7:r'\\a', 12:r'\\f', 10:r'\\n', 13:r'\\r', 9:r'\\t', 11:r'\\v', 34:r'\"' if not uses_powershell else r'`"', 92:r'\\'}
     raw_str = r''.join(raw_map.get(ord(i), i) for i in in_str)
     return f"\"{raw_str}\""
 
